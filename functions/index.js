@@ -6,9 +6,22 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const app = express();
-const port = 3000; // or any other port you prefer
-app.use(cors());
+const port = 3001; // or any other port you prefer
+// app.use(cors());
 app.use(bodyParser.text({type:"*/*"}));
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "http://localhost:50085"); // update to match the domain you will make the request from
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header('Access-Control-Allow-Methods','GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS');
+  next();
+});
+
+app.options("/products", cors, function(req, res, next){
+  console.log("OPTIONS route:",req.headers)
+  res.sendStatus(200);
+ });
+
 // Set up your routes here
 app.post("/products", async (req, res) => {
   try {
@@ -34,6 +47,20 @@ app.post("/products", async (req, res) => {
 
     const products = response.data;
     console.log(products);
+    // var allowedOrigins = [
+    //   'https://haus-b16c1.web.app',
+    //   'http://localhost'
+    // ];
+    // var origin = req.headers.origin;
+    // if (allowedOrigins.indexOf(origin) > -1) {
+    //   res.setHeader('Access-Control-Allow-Origin', origin);
+    // }
+
+    // res.header("Access-Control-Allow-Origin", "*");
+    // res.header("Access-Control-Allow-Methods", "GET,PUT,PATCH,POST,DELETE");
+    // res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+
+    // res.header('Access-Control-Allow-Origin', '*');
     res.send(products);
     // res.header("Access-Control-Allow-Headers: Access-Control-Allow-Origin, Accept").json({
     //   message: 'responseMessage',
@@ -45,10 +72,11 @@ app.post("/products", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+// app.listen(port, () => {
+//   console.log(`Server running on port ${port}`);
+// });
 
+// exports.app = functions.https.onRequest(app);
 exports.app = functions.https.onRequest(app);
 
 // // Create and deploy your first functions
